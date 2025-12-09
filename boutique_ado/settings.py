@@ -37,6 +37,42 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Required for django-allauth
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+]
+
+SITE_ID = 1
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+ACCOUNT_LOGIN_METHODS = {'username', 'email'}
+
+ACCOUNT_SIGNUP_FIELDS = [
+    'username*',
+    'email*',
+    'email2*',
+    'password1*',
+    'password2*',
+]
+
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_USERNAME_MIN_LENGTH = 4
+
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/success'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+
+
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in the Django admin
+    'django.contrib.auth.backends.ModelBackend',
+
+    # django-allauth specific authentication methods
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
 MIDDLEWARE = [
@@ -45,6 +81,10 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+
+    # Required by django-allauth
+    'allauth.account.middleware.AccountMiddleware',
+
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -68,7 +108,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'boutique_ado.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
@@ -78,7 +117,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -98,7 +136,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
@@ -109,7 +146,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
