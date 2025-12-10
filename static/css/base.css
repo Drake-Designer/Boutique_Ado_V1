@@ -1,0 +1,127 @@
+/* Global layout */
+html,
+body {
+  height: 100%;
+}
+
+/* Default site background and typography */
+body {
+  min-height: 100vh;
+  background: #f8f9fa;
+  color: #555;
+  font-family: 'Lato', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Home page background image */
+body.home-page {
+  background: #f8f9fa url('/media/homepage/homepage_background_cropped.jpg') no-repeat center center fixed;
+  background-size: cover;
+}
+
+/* Improve background behavior on small screens */
+@media (max-width: 767.98px) {
+  body.home-page {
+    background-attachment: scroll;
+    background-position: center top;
+  }
+}
+
+/* Icon helper (from Bulma style) */
+.icon {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+/* Logo styling */
+.logo-font {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Keep logo link as tight as the content */
+.main-logo-link {
+  width: fit-content;
+}
+
+/* Primary call to action buttons */
+.shop-now-button {
+  background: #000;
+  color: #fff;
+  min-width: 260px;
+  border-radius: 0;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* Reusable black button variant */
+.btn-black {
+  background: #000;
+  color: #fff;
+  border-radius: 0;
+}
+
+/* Hover and focus states for black buttons */
+.shop-now-button:hover,
+.shop-now-button:active,
+.shop-now-button:focus,
+.btn-black:hover,
+.btn-black:active,
+.btn-black:focus {
+  background: #222;
+  color: #fff;
+}
+
+/* Smooth transition on buttons */
+.shop-now-button,
+.btn-black {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Text and border utilities */
+.text-black {
+  color: #000 !important;
+}
+
+.border-black {
+  border: 1px solid #000 !important;
+}
+
+/* Container width tweak on very large screens */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 80%;
+  }
+}
+
+/* Fixed top navbar only on medium and up (kept for compatibility) */
+@media (min-width: 992px) {
+  .fixed-top-desktop-only {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 1030;
+  }
+
+  .header-container {
+    padding-top: 164px;
+  }
+}
+
+/* Header container for hero section on smaller screens */
+@media (max-width: 991.98px) {
+  .header-container {
+    padding-top: 5rem;
+  }
+}
+
+/* Message container for Bootstrap toasts */
+.message-container {
+  position: fixed;
+  top: 80px;
+  right: 15px;
+  z-index: 1100;
+}
