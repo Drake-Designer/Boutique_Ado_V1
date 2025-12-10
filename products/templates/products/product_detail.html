@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block extra_title %}
+    | {{ product.name }}
+{% endblock extra_title %}
+{% block page_header %}
+    <div class="container mt-5 pt-5">
+        <div class="row">
+            <div class="col">
+                <h1 class="logo-font">{{ product.name }}</h1>
+            </div>
+        </div>
+    </div>
+{% endblock page_header %}
+{% block content %}
+    <div class="container mb-5">
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <div class="product-image mb-4">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}"
+                             class="img-fluid"
+                             alt="{{ product.name }}"
+                             width="600"
+                             height="600">
+                    {% elif product.image_url %}
+                        <img src="{{ product.image_url }}"
+                             class="img-fluid"
+                             alt="{{ product.name }}"
+                             width="600"
+                             height="600">
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-12 col-md-6 mt-4 mt-md-0">
+                <h2 class="logo-font">{{ product.name }}</h2>
+                {% if product.category %}
+                    <p class="text-muted">
+                        Category:
+                        {{ product.category.friendly_name|default:product.category.name }}
+                    </p>
+                {% endif %}
+                <p class="lead mb-3">{{ product.price }} €</p>
+                <p>{{ product.description }}</p>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
