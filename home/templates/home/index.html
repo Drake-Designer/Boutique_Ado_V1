@@ -1,36 +1,40 @@
 {% extends "base.html" %}
+
 {% load static %}
 
-{% block extra_title %}| Home{% endblock %}
+{% block extra_title %}
 
-{% block body_class %}home-page{% endblock %}
+  | Home
+{% endblock extra_title %}
+
+{% block body_class %}
+
+  home-page
+{% endblock body_class %}
 
 {% block page_header %}
+
   <div class="container header-container">
     <div class="row">
       <div class="col"></div>
     </div>
   </div>
-{% endblock %}
+{% endblock page_header %}
 
 {% block content %}
+
   <div class="container h-100">
     <div class="row h-100">
       <div class="col-12 col-md-7 col-lg-6 my-auto">
-        <h1 class="display-4 logo-font text-black">
-          The new collections are here
-        </h1>
-        <p class="lead text-black">
-          Discover the latest trends and elevate your style with our new arrivals.
-        </p>
+        <h1 class="display-4 logo-font text-black">The new collections are here</h1>
+        <p class="lead text-black">Discover the latest trends and elevate your style with our new arrivals.</p>
         <div class="my-4">
           <h4>
-            <a href="#" class="shop-now-button btn btn-lg rounded-0 text-uppercase py-3">
-              Shop Now
-            </a>
+            <a href="{% url 'products' %}"
+               class="shop-now-button btn btn-lg rounded-0 text-uppercase py-3">Shop Now</a>
           </h4>
         </div>
       </div>
     </div>
   </div>
-{% endblock %}
+{% endblock content %}

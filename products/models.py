@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
@@ -94,10 +95,14 @@ class Product(models.Model):
     )
     created_at = models.DateTimeField(
         auto_now_add=True,
+        null=True,
+        blank=True,
         help_text="Timestamp when the product was created.",
     )
     updated_at = models.DateTimeField(
         auto_now=True,
+        null=True,
+        blank=True,
         help_text="Timestamp of the last update.",
     )
 
@@ -107,6 +112,22 @@ class Product(models.Model):
             models.Index(fields=["name"]),
             models.Index(fields=["sku"]),
         ]
+
+    @property
+    def display_image_url(self) -> str:
+        """Return a usable image URL preferring local files, then remote image_url, else a placeholder."""
+        if self.image and self.image.name:
+            try:
+                if self.image.storage.exists(self.image.name):
+                    return self.image.url
+            except Exception:
+                pass
+
+        if self.image_url:
+            return self.image_url
+
+        # Fallback placeholder (no local noimage.png is present)
+        return "https://via.placeholder.com/600?text=No+Image"
 
     def __str__(self) -> str:
         return self.name

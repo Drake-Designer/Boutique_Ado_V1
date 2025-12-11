@@ -9,5 +9,7 @@
 
   "blank_line_before_tag": "load,extends,block",
   "blank_line_after_tag": "load,extends,block",
-  "max_blank_lines": 2
+  "max_blank_lines": 2,
+
+  "ignore": "H006,H030,H031,T003,T002,H029"
 }
