@@ -30,6 +30,8 @@ def all_products(request):
                 sort_key = "name"
             elif sort_key == "price":
                 sort_key = "price"
+            elif sort_key == "rating":
+                sort_key = "rating"
             elif sort_key == "category":
                 sort_key = "category__name"
 
