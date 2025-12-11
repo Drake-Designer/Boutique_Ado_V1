@@ -15,25 +15,90 @@
 
     <div class="overlay"></div>
     <div class="container-fluid">
+
+        <!-- Page title and category badges -->
         <div class="row">
             <div class="col text-center mt-3">
                 <h2 class="logo-font">Products</h2>
-                <hr class="w-50 mb-1" />
+
+                {% if current_categories %}
+                    {% for c in current_categories %}
+                        <a class="category-badge text-decoration-none"
+                           href="{% url 'products' %}?category={{ c.name }}">
+                            <span class="p-2 mt-2 badge badge-white text-black rounded-0 border border-dark">{{ c.friendly_name }}</span>
+                        </a>
+                    {% endfor %}
+                {% endif %}
+
+                <hr class="w-50 mb-1 mx-auto" />
             </div>
         </div>
 
+        <!-- Header row -->
         <div class="row">
             <div class="product-container col-10 offset-1">
 
-                <!-- Empty spacing row -->
-                <div class="row mt-1 mb-2"></div>
+                <!-- Products text left, sort right -->
+                <div class="row mt-1 mb-2 align-items-center">
+                    <!-- Left side: Products Home + count -->
+                    <div class="col-12 col-md-6 text-center text-md-start mb-2 mb-md-0">
+                        <p class="text-muted mb-0">
+                            {% if search_term or current_categories or current_sorting != 'None_None' %}
+                                <span class="small">
+                                    <a href="{% url 'products' %}">Products Home</a> |
+                                </span>
+                            {% endif %}
+                            {{ products|length }} Products
+                            {% if search_term %}found for <strong>"{{ search_term }}"</strong>{% endif %}
+                        </p>
+                    </div>
 
+                    <!-- Right side: sort selector -->
+                    <div class="col-12 col-md-6 text-center text-md-end">
+                        <div class="sort-select-wrapper d-inline-block">
+                            <select id="sort-selector"
+                                    class="custom-select custom-select-sm rounded-0 border border-{% if current_sorting != 'None_None' %}info{% else %}black{% endif %}">
+                                <option value="reset"
+                                        {% if current_sorting == 'None_None' %}selected{% endif %}>Sort by...</option>
+                                <option value="price_asc"
+                                        {% if current_sorting == 'price_asc' %}selected{% endif %}>
+                                    Price (low to high)
+                                </option>
+                                <option value="price_desc"
+                                        {% if current_sorting == 'price_desc' %}selected{% endif %}>
+                                    Price (high to low)
+                                </option>
+                                <option value="rating_asc"
+                                        {% if current_sorting == 'rating_asc' %}selected{% endif %}>
+                                    Rating (low to high)
+                                </option>
+                                <option value="rating_desc"
+                                        {% if current_sorting == 'rating_desc' %}selected{% endif %}>
+                                    Rating (high to low)
+                                </option>
+                                <option value="name_asc"
+                                        {% if current_sorting == 'name_asc' %}selected{% endif %}>Name (A-Z)</option>
+                                <option value="name_desc"
+                                        {% if current_sorting == 'name_desc' %}selected{% endif %}>Name (Z-A)</option>
+                                <option value="category_asc"
+                                        {% if current_sorting == 'category_asc' %}selected{% endif %}>
+                                    Category (A-Z)
+                                </option>
+                                <option value="category_desc"
+                                        {% if current_sorting == 'category_desc' %}selected{% endif %}>
+                                    Category (Z-A)
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products grid -->
                 <div class="row">
                     {% for product in products %}
                         <div class="col-sm-6 col-md-6 col-lg-4 col-xl-3">
                             <div class="card h-100 border-0">
 
-                                <!-- Product image -->
                                 <a href="{% url 'product_detail' product.id %}">
                                     <img class="card-img-top img-fluid"
                                          src="{{ product.display_image_url }}"
@@ -42,16 +107,24 @@
                                          height="600" />
                                 </a>
 
-                                <!-- Product name -->
                                 <div class="card-body pb-0">
                                     <p class="mb-0">{{ product.name }}</p>
                                 </div>
 
-                                <!-- Product price and rating -->
                                 <div class="card-footer bg-white pt-0 border-0 text-left">
                                     <div class="row">
                                         <div class="col">
                                             <p class="lead mb-0 text-left font-weight-bold">{{ product.price }} €</p>
+
+                                            {% if product.category %}
+                                                <p class="small mt-1 mb-0">
+                                                    <a class="text-muted"
+                                                       href="{% url 'products' %}?category={{ product.category.name }}">
+                                                        <i class="fas fa-tag mr-1"></i>
+                                                        {{ product.category.friendly_name }}
+                                                    </a>
+                                                </p>
+                                            {% endif %}
 
                                             {% if product.rating %}
                                                 <small class="text-muted">
@@ -63,10 +136,10 @@
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
 
-                        <!-- Extra spacing rules per breakpoint -->
                         {% if forloop.counter|divisibleby:1 %}
                             <div class="col-12 d-sm-none mb-5">
                                 <hr />
@@ -87,10 +160,41 @@
                                 <hr />
                             </div>
                         {% endif %}
-
                     {% endfor %}
                 </div>
+
             </div>
         </div>
     </div>
 {% endblock content %}
+
+{% block postloadjs %}
+
+    {{ block.super }}
+    <script>
+        (function() {
+            const selector = document.getElementById('sort-selector');
+            if (!selector) return;
+
+            selector.addEventListener('change', function() {
+                const val = this.value;
+                const url = new URL(window.location.href);
+
+                if (val === "reset") {
+                    url.searchParams.delete("sort");
+                    url.searchParams.delete("direction");
+                    window.location.href = url.toString();
+                    return;
+                }
+
+                const parts = val.split("_");
+                const sort = parts[0];
+                const direction = parts[1];
+
+                url.searchParams.set("sort", sort);
+                url.searchParams.set("direction", direction);
+                window.location.href = url.toString();
+            });
+        })();
+    </script>
+{% endblock postloadjs %}
