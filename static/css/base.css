@@ -74,7 +74,15 @@ body.home-page {
   border-radius: 0;
 }
 
-/* Hover and focus states for black buttons */
+/* Outline black button variant */
+.btn-outline-black {
+  background: #fff;
+  color: #000 !important;
+  border: 1px solid #000;
+  border-radius: 0;
+}
+
+/* Hover and focus states */
 .shop-now-button:hover,
 .shop-now-button:active,
 .shop-now-button:focus,
@@ -85,19 +93,29 @@ body.home-page {
   color: #fff;
 }
 
+.btn-outline-black:hover,
+.btn-outline-black:active,
+.btn-outline-black:focus {
+  background: #000;
+  color: #fff !important;
+}
+
 /* Accessibility: stronger focus styles for keyboard users */
 .shop-now-button:focus-visible,
-.btn-black:focus-visible {
+.btn-black:focus-visible,
+.btn-outline-black:focus-visible {
   outline: 2px solid #000;
   outline-offset: 2px;
 }
 
 /* Smooth transition on buttons */
 .shop-now-button,
-.btn-black {
+.btn-black,
+.btn-outline-black {
   transition:
     background-color 0.2s ease,
-    color 0.2s ease;
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 /* Text and border utilities */
@@ -109,44 +127,105 @@ body.home-page {
   border: 1px solid #000 !important;
 }
 
+.bg-black {
+  background: #000 !important;
+}
+
 /*
-  Optional wider container on very large screens
-  Use .container-wide on specific sections instead of overriding .container globally.
+  Page overlay used on product pages
+  Keep behind content without affecting layout.
 */
-@media (min-width: 1200px) {
-  .container-wide {
-    max-width: 80%;
-  }
-}
-
-/* Fixed top navbar only on medium and up */
-@media (min-width: 992px) {
-  .fixed-top-desktop-only {
-    position: fixed;
-    top: 0;
-    right: 0;
-    left: 0;
-    z-index: 1030;
-  }
-
-  .header-container {
-    padding-top: 164px;
-  }
-}
-
-/* Header container for hero section on smaller screens */
-@media (max-width: 991.98px) {
-  .header-container {
-    padding-top: 5rem;
-  }
-}
-
-/* Message container for Bootstrap toasts */
-.message-container {
+.overlay {
   position: fixed;
-  top: 80px;
-  right: 15px;
-  z-index: 1100;
+  inset: 0;
+  background: #fff;
+  z-index: -1;
+}
+
+/*
+  Header spacing
+  Ensure content never sticks to the fixed header + delivery banner.
+*/
+.header-container {
+  padding-top: 7.5rem;
+}
+
+/* Desktop fixed header spacing */
+@media (min-width: 992px) {
+  .header-container {
+    padding-top: 10.5rem;
+  }
+}
+
+/*
+  Delivery banner spacing
+  Add a little breathing room below the banner.
+*/
+#delivery-banner {
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+}
+
+#delivery-banner + .header-container {
+  padding-top: 1.25rem;
+}
+
+/* Category badge hover */
+.category-badge {
+  border: 1px solid #212529;
+  background: #fff;
+  color: #000;
+  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0;
+}
+
+.category-badge:hover {
+  background: #212529;
+  color: #fff;
+}
+
+/* Back to top button */
+.btt-button {
+  height: 42px;
+  width: 42px;
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+}
+
+/* Clickable helpers */
+.btt-link,
+.update-link,
+.remove-item {
+  cursor: pointer;
+}
+
+/*
+  Product cards
+  Small polish for a cleaner grid.
+*/
+.product-card .card-img-top {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+/*
+  Product detail page image
+  Keep consistent sizing and crop nicely.
+*/
+.product-detail-image {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+/*
+  Bag page product image size
+*/
+.bag-product-image {
+  max-width: 120px;
+  height: auto;
 }
 
 /* Sort dropdown wrapper */
@@ -154,31 +233,11 @@ body.home-page {
   min-width: 180px;
 }
 
-/* Product detail page: balance layout */
-.product-details-container {
-  max-width: 520px;
-}
-
-/* Product detail image */
-.product-detail-image {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-/* Product detail page: quantity input sizing (no inline styles) */
+/* Quantity input sizing (no inline styles) */
 .qty-input-group {
-  max-width: 140px;
+  max-width: 220px;
 }
 
 .qty_input {
   text-align: center;
-}
-
-/* Product detail actions */
-.product-actions {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  align-items: center;
 }

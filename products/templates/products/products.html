@@ -147,12 +147,23 @@
                                 </div>
                             </div>
                         </div>
+                    {% empty %}
+                        <div class="col-12">
+                            <div class="alert alert-light border rounded-0">No products found.</div>
+                        </div>
                     {% endfor %}
                 </div>
-
             </div>
         </div>
     </div>
+
+    <button type="button"
+            class="btt-button shadow-sm rounded-0 border border-black"
+            aria-label="Back to top">
+        <span class="d-flex h-100 align-items-center justify-content-center">
+            <i class="fas fa-arrow-up text-black" aria-hidden="true"></i>
+        </span>
+    </button>
 {% endblock content %}
 
 {% block postloadjs %}
@@ -161,26 +172,43 @@
     <script>
         (function() {
             const selector = document.getElementById('sort-selector');
-            if (!selector) return;
+            if (selector) {
+                selector.addEventListener('change', function() {
+                    const val = this.value;
+                    const url = new URL(window.location.href);
 
-            selector.addEventListener('change', function() {
-                const val = this.value;
-                const url = new URL(window.location.href);
+                    if (val === "reset") {
+                        url.searchParams.delete("sort");
+                        url.searchParams.delete("direction");
+                        window.location.href = url.toString();
+                        return;
+                    }
 
-                if (val === "reset") {
-                    url.searchParams.delete("sort");
-                    url.searchParams.delete("direction");
+                    const parts = val.split("_");
+                    url.searchParams.set("sort", parts[0]);
+                    url.searchParams.set("direction", parts[1]);
                     window.location.href = url.toString();
-                    return;
-                }
+                });
+            }
 
-                const parts = val.split("_");
-                const sort = parts[0];
-                const direction = parts[1];
+            const btt = document.querySelector('.btt-button');
+            if (!btt) return;
 
-                url.searchParams.set("sort", sort);
-                url.searchParams.set("direction", direction);
-                window.location.href = url.toString();
+            const toggleBtt = () => {
+                const show = window.scrollY > 400;
+                btt.classList.toggle('is-visible', show);
+            };
+
+            toggleBtt();
+            window.addEventListener('scroll', toggleBtt, {
+                passive: true
+            });
+
+            btt.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
             });
         })();
     </script>

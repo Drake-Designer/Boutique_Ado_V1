@@ -1,16 +1,14 @@
 """
-WSGI config for boutique_ado project.
+WSGI configuration for boutique_ado project.
 
-It exposes the WSGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/6.0/howto/deployment/wsgi/
+This module exposes the WSGI callable as a module-level variable named
+``application``.
 """
 
 import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'boutique_ado.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "boutique_ado.settings")
 
 application = get_wsgi_application()

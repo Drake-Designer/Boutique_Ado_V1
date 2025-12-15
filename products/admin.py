@@ -28,11 +28,9 @@ class ProductAdmin(admin.ModelAdmin):
         "category",
         "price",
         "rating",
-        "is_active",
     )
     list_filter = (
         "category",
-        "is_active",
     )
     search_fields = (
         "name",
@@ -72,10 +70,10 @@ class ProductAdmin(admin.ModelAdmin):
             },
         ),
         (
-            "Status & Metadata",
+            "Options",
             {
                 "fields": (
-                    "is_active",
+                    "has_sizes",
                 )
             },
         ),

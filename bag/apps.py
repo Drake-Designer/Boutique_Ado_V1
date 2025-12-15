@@ -2,4 +2,12 @@ from django.apps import AppConfig
 
 
 class BagConfig(AppConfig):
-    name = 'bag'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "bag"
+    verbose_name = "Bag"
+
+    def ready(self):
+        """
+        Initialize application signals.
+        """
+        pass

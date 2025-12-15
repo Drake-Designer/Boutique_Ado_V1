@@ -2,4 +2,12 @@ from django.apps import AppConfig
 
 
 class HomeConfig(AppConfig):
-    name = 'home'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "home"
+    verbose_name = "Home"
+
+    def ready(self):
+        """
+        Initialize application configuration.
+        """
+        pass

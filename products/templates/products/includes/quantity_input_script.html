@@ -1,0 +1,128 @@
+<script>
+    (function() {
+        "use strict";
+
+        function clamp(value, min, max) {
+            return Math.min(Math.max(value, min), max);
+        }
+
+        function getMinMax(input) {
+            const minAttr = input.getAttribute("min");
+            const maxAttr = input.getAttribute("max");
+
+            const min = Number.isFinite(parseInt(minAttr, 10)) ? parseInt(minAttr, 10) : 1;
+            const max = Number.isFinite(parseInt(maxAttr, 10)) ? parseInt(maxAttr, 10) : 99;
+
+            return {
+                min,
+                max
+            };
+        }
+
+        function getQuantityInput(itemId) {
+            return document.getElementById(`id_qty_${itemId}`);
+        }
+
+        function setButtonState(itemId) {
+            const input = getQuantityInput(itemId);
+            if (!input) return;
+
+            const {
+                min,
+                max
+            } = getMinMax(input);
+            const currentValue = parseInt(input.value, 10);
+
+            const value = Number.isFinite(currentValue) ? currentValue : min;
+
+            const decrementBtn = document.querySelector(`.decrement-qty[data-item_id="${itemId}"]`);
+            const incrementBtn = document.querySelector(`.increment-qty[data-item_id="${itemId}"]`);
+
+            if (decrementBtn) decrementBtn.disabled = value <= min;
+            if (incrementBtn) incrementBtn.disabled = value >= max;
+        }
+
+        function normalizeInputValue(itemId) {
+            const input = getQuantityInput(itemId);
+            if (!input) return;
+
+            const {
+                min,
+                max
+            } = getMinMax(input);
+            const currentValue = parseInt(input.value, 10);
+
+            const safeValue = Number.isFinite(currentValue) ? clamp(currentValue, min, max) : min;
+            input.value = String(safeValue);
+
+            setButtonState(itemId);
+        }
+
+        function stepQuantity(itemId, delta) {
+            const input = getQuantityInput(itemId);
+            if (!input) return;
+
+            const {
+                min,
+                max
+            } = getMinMax(input);
+            const currentValue = parseInt(input.value, 10);
+            const baseValue = Number.isFinite(currentValue) ? currentValue : min;
+
+            input.value = String(clamp(baseValue + delta, min, max));
+            setButtonState(itemId);
+        }
+
+        function initAll() {
+            const inputs = document.querySelectorAll(".qty_input[data-item_id]");
+            inputs.forEach((input) => {
+                const itemId = input.getAttribute("data-item_id");
+                if (!itemId) return;
+                normalizeInputValue(itemId);
+            });
+        }
+
+        document.addEventListener("click", (event) => {
+            const incBtn = event.target.closest(".increment-qty");
+            if (incBtn) {
+                event.preventDefault();
+                const itemId = incBtn.getAttribute("data-item_id");
+                if (itemId) stepQuantity(itemId, 1);
+                return;
+            }
+
+            const decBtn = event.target.closest(".decrement-qty");
+            if (decBtn) {
+                event.preventDefault();
+                const itemId = decBtn.getAttribute("data-item_id");
+                if (itemId) stepQuantity(itemId, -1);
+            }
+        });
+
+        document.addEventListener("change", (event) => {
+            const input = event.target.closest(".qty_input");
+            if (!input) return;
+
+            const itemId = input.getAttribute("data-item_id");
+            if (!itemId) return;
+
+            normalizeInputValue(itemId);
+        });
+
+        document.addEventListener("input", (event) => {
+            const input = event.target.closest(".qty_input");
+            if (!input) return;
+
+            const itemId = input.getAttribute("data-item_id");
+            if (!itemId) return;
+
+            setButtonState(itemId);
+        });
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", initAll);
+        } else {
+            initAll();
+        }
+    })();
+</script>

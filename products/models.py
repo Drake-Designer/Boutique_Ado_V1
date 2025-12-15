@@ -1,44 +1,30 @@
-from django.conf import settings
-from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class Category(models.Model):
-    """
-    Product category, used to group products in the catalog.
-    """
-
-    name = models.CharField(
-        max_length=254,
-        unique=True,
-        help_text="Internal name used as identifier in code and fixtures.",
-    )
-    friendly_name = models.CharField(
-        max_length=254,
-        null=True,
-        blank=True,
-        help_text="Human readable name shown in the UI.",
-    )
-
     class Meta:
+        verbose_name = "Category"
         verbose_name_plural = "Categories"
         ordering = ("name",)
+
+    name = models.CharField(max_length=254, unique=True)
+    friendly_name = models.CharField(max_length=254, null=True, blank=True)
 
     def __str__(self) -> str:
         return self.name
 
     def get_friendly_name(self) -> str:
-        """
-        Return a human friendly name and fall back to the internal one
-        if a friendly name is not provided.
-        """
         return self.friendly_name or self.name
 
 
 class Product(models.Model):
-    """
-    Single product available in the store.
-    """
+    class Meta:
+        ordering = ("name",)
+        indexes = [
+            models.Index(fields=["name"]),
+            models.Index(fields=["category"]),
+        ]
 
     category = models.ForeignKey(
         "Category",
@@ -46,88 +32,33 @@ class Product(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="products",
-        help_text="Category this product belongs to.",
     )
-    sku = models.CharField(
-        max_length=254,
-        null=True,
-        blank=True,
-        db_index=True,
-        help_text="Stock keeping unit or external product identifier.",
-    )
-    name = models.CharField(
-        max_length=254,
-        db_index=True,
-        help_text="Product name shown in the catalog.",
-    )
-    description = models.TextField(
-        help_text="Detailed description of the product.",
-    )
-    price = models.DecimalField(
-        max_digits=7,          # up to 99999.99
-        decimal_places=2,
-        validators=[MinValueValidator(0)],
-        help_text="Price in EUR.",
-    )
+    sku = models.CharField(max_length=254, null=True,
+                           blank=True, db_index=True)
+    name = models.CharField(max_length=254, db_index=True)
+    description = models.TextField()
+    has_sizes = models.BooleanField(default=False)
+    price = models.DecimalField(max_digits=8, decimal_places=2)
     rating = models.DecimalField(
-        max_digits=3,          # 0.0 to 5.0
-        decimal_places=1,
+        max_digits=3,
+        decimal_places=2,
         null=True,
         blank=True,
         validators=[MinValueValidator(0), MaxValueValidator(5)],
-        help_text="Average customer rating, from 0.0 to 5.0.",
     )
-    image_url = models.URLField(
-        max_length=1024,
-        null=True,
-        blank=True,
-        help_text="Legacy external image URL, kept for backward compatibility.",
-    )
-    image = models.ImageField(
-        upload_to="products/",
-        null=True,
-        blank=True,
-        help_text="Locally stored product image.",
-    )
-    is_active = models.BooleanField(
-        default=True,
-        help_text="If false, the product will be hidden from the catalog.",
-    )
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        null=True,
-        blank=True,
-        help_text="Timestamp when the product was created.",
-    )
-    updated_at = models.DateTimeField(
-        auto_now=True,
-        null=True,
-        blank=True,
-        help_text="Timestamp of the last update.",
-    )
-
-    class Meta:
-        ordering = ("name",)
-        indexes = [
-            models.Index(fields=["name"]),
-            models.Index(fields=["sku"]),
-        ]
-
-    @property
-    def display_image_url(self) -> str:
-        """Return a usable image URL preferring local files, then remote image_url, else a placeholder."""
-        if self.image and self.image.name:
-            try:
-                if self.image.storage.exists(self.image.name):
-                    return self.image.url
-            except Exception:
-                pass
-
-        if self.image_url:
-            return self.image_url
-
-        # Fallback placeholder (no local noimage.png is present)
-        return "https://via.placeholder.com/600?text=No+Image"
+    image_url = models.URLField(max_length=1024, null=True, blank=True)
+    image = models.ImageField(upload_to="products/", null=True, blank=True)
 
     def __str__(self) -> str:
         return self.name
+
+    @property
+    def display_image_url(self) -> str:
+        """
+        Return a safe image URL for templates.
+        """
+        if self.image and getattr(self.image, "url", None):
+            return self.image.url
+        if self.image_url:
+            return self.image_url
+        return ""

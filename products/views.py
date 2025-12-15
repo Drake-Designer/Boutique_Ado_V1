@@ -1,88 +1,91 @@
-from typing import Optional
-
 from django.contrib import messages
-from django.db.models import Q, QuerySet
-from django.shortcuts import render, get_object_or_404, redirect
+from django.db.models import Q
+from django.db.models.functions import Lower
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
-from .models import Product, Category
+from .models import Category, Product
 
 
 def all_products(request):
     """
-    View to show all products, with optional search, filtering and sorting.
+    Show all products with optional sorting, category filtering, and search.
     """
-    products: QuerySet[Product] = Product.objects.all()
+    products = Product.objects.select_related("category").all()
 
-    query: Optional[str] = None
-    categories_filter: Optional[list[str]] = None
-    sort: Optional[str] = None
-    direction: Optional[str] = None
+    search_term = None
+    current_categories = None
+    sort = None
+    direction = None
+
+    allowed_sorts = {"price", "rating", "name", "category"}
+    allowed_directions = {"asc", "desc"}
 
     if request.GET:
-        # Sorting
-        if "sort" in request.GET:
-            sort_key = request.GET.get("sort")
-            sort = sort_key
+        sort_param = request.GET.get("sort")
+        direction_param = request.GET.get("direction")
 
-            # Map sort options to model fields
-            if sort_key == "name":
-                sort_key = "name"
-            elif sort_key == "price":
-                sort_key = "price"
-            elif sort_key == "rating":
-                sort_key = "rating"
-            elif sort_key == "category":
+        if sort_param in allowed_sorts:
+            sort = sort_param
+            sort_key = sort_param
+
+            if sort_param == "name":
+                sort_key = "lower_name"
+                products = products.annotate(lower_name=Lower("name"))
+
+            if sort_param == "category":
                 sort_key = "category__name"
 
-            if "direction" in request.GET:
-                direction = request.GET.get("direction")
-                if direction == "desc":
-                    sort_key = f"-{sort_key}"
+            if direction_param in allowed_directions:
+                direction = direction_param
 
-            if sort_key:
-                products = products.order_by(sort_key)
+            if direction == "desc":
+                sort_key = f"-{sort_key}"
 
-        # Filter by category or categories (comma separated)
-        if "category" in request.GET:
-            categories_filter = request.GET.get("category", "").split(",")
-            products = products.filter(category__name__in=categories_filter)
-            categories_qs = Category.objects.filter(name__in=categories_filter)
-        else:
-            categories_qs = None
+            products = products.order_by(sort_key)
 
-        # Search
-        if "q" in request.GET:
-            query = request.GET.get("q", "").strip()
-            if not query:
+        category_param = request.GET.get("category")
+        if category_param:
+            category_names = [c.strip()
+                              for c in category_param.split(",") if c.strip()]
+            if category_names:
+                products = products.filter(category__name__in=category_names)
+                current_categories = Category.objects.filter(
+                    name__in=category_names)
+
+        q_param = request.GET.get("q")
+        if q_param is not None:
+            search_term = q_param.strip()
+            if not search_term:
                 messages.error(
-                    request, "You did not enter any search criteria.")
+                    request, "You didn't enter any search criteria!")
                 return redirect(reverse("products"))
 
-            search_queries = (
-                Q(name__icontains=query)
-                | Q(description__icontains=query)
-            )
-            products = products.filter(search_queries)
+            queries = Q(name__icontains=search_term) | Q(
+                description__icontains=search_term)
+            products = products.filter(queries)
 
-    current_sorting = f"{sort}_{direction}" if sort and direction else ""
+    current_sorting = f"{sort}_{direction}"
 
     context = {
         "products": products,
-        "search_term": query,
-        "current_categories": categories_qs if "categories_qs" in locals() else None,
+        "search_term": search_term,
+        "current_categories": current_categories,
         "current_sorting": current_sorting,
     }
+
     return render(request, "products/products.html", context)
 
 
-def product_detail(request, product_id: int):
+def product_detail(request, product_id):
     """
-    View to show a single product detail.
+    Show a single product detail page.
     """
-    product = get_object_or_404(Product, pk=product_id)
+    product = get_object_or_404(
+        Product.objects.select_related("category"), pk=product_id)
 
     context = {
         "product": product,
     }
+
     return render(request, "products/product_detail.html", context)
