@@ -18,10 +18,14 @@ body {
     sans-serif;
 }
 
-/* Home page background image */
+/*
+  Home page background image
+  NOTE: Prefer static assets for theme/background images.
+  Put the image in: static/images/homepage/homepage_background_cropped.jpg
+*/
 body.home-page {
-  background: #f8f9fa url("/media/homepage/homepage_background_cropped.jpg") no-repeat center center
-    fixed;
+  background: #f8f9fa url("/static/images/homepage/homepage_background_cropped.jpg") no-repeat
+    center center fixed;
   background-size: cover;
 }
 
@@ -35,8 +39,8 @@ body.home-page {
 
 /* Icon helper */
 .icon {
-  align-items: center;
   display: inline-flex;
+  align-items: center;
   justify-content: center;
   height: 1.5rem;
   width: 1.5rem;
@@ -81,6 +85,13 @@ body.home-page {
   color: #fff;
 }
 
+/* Accessibility: stronger focus styles for keyboard users */
+.shop-now-button:focus-visible,
+.btn-black:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+}
+
 /* Smooth transition on buttons */
 .shop-now-button,
 .btn-black {
@@ -98,9 +109,12 @@ body.home-page {
   border: 1px solid #000 !important;
 }
 
-/* Container width tweak on very large screens */
+/*
+  Optional wider container on very large screens
+  Use .container-wide on specific sections instead of overriding .container globally.
+*/
 @media (min-width: 1200px) {
-  .container {
+  .container-wide {
     max-width: 80%;
   }
 }
@@ -138,4 +152,33 @@ body.home-page {
 /* Sort dropdown wrapper */
 .sort-select-wrapper {
   min-width: 180px;
+}
+
+/* Product detail page: balance layout */
+.product-details-container {
+  max-width: 520px;
+}
+
+/* Product detail image */
+.product-detail-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Product detail page: quantity input sizing (no inline styles) */
+.qty-input-group {
+  max-width: 140px;
+}
+
+.qty_input {
+  text-align: center;
+}
+
+/* Product detail actions */
+.product-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
 }

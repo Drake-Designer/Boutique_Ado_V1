@@ -52,6 +52,7 @@
             {% endblock extra_title %}
         </title>
     </head>
+
     <body class="
         {% block body_class %}
         {% endblock body_class %}">
@@ -66,6 +67,7 @@
                         </h2>
                     </a>
                 </div>
+
                 <div class="col-12 col-lg-4 my-auto py-1 py-lg-0">
                     <form method="get" action="{% url 'products' %}" class="d-flex">
                         <div class="input-group w-100">
@@ -81,8 +83,10 @@
                         </div>
                     </form>
                 </div>
+
                 <div class="col-12 col-lg-4 my-auto py-1 py-lg-0">
                     <ul class="list-inline list-unstyled text-center text-lg-end my-0">
+                        {# User dropdown #}
                         <li class="list-inline-item dropdown">
                             <a class="nav-link text-black"
                                href="#"
@@ -97,6 +101,7 @@
                                     <p class="my-0">My Account</p>
                                 </div>
                             </a>
+
                             <ul class="dropdown-menu border-0" aria-labelledby="user-options">
                                 {% if request.user.is_authenticated %}
                                     {% if request.user.is_superuser %}
@@ -120,18 +125,20 @@
                                 {% endif %}
                             </ul>
                         </li>
+
+                        {# Bag total #}
                         <li class="list-inline-item">
                             <a class="nav-link {% if grand_total %}text-info fw-bold{% else %}text-black{% endif %}"
-                               href="">
+                               href="{% url 'view_bag' %}">
                                 <div class="text-center">
                                     <div>
                                         <i class="fas fa-shopping-bag fa-lg"></i>
                                     </div>
                                     <p class="my-0">
                                         {% if grand_total %}
-                                            ${{ grand_total|floatformat:2 }}
+                                            {{ grand_total|floatformat:2 }} €
                                         {% else %}
-                                            $0.00
+                                            0.00 €
                                         {% endif %}
                                     </p>
                                 </div>
@@ -153,28 +160,32 @@
                             aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
                     </button>
-                    {% include 'includes/mobile-top-header.html' %}
-                    {% include 'includes/main-nav.html' %}
+
+                    {% include "includes/mobile-top-header.html" %}
+                    {% include "includes/main-nav.html" %}
                 </nav>
             </div>
 
             {# Delivery banner #}
             <div id="delivery-banner" class="row text-center">
                 <div class="col bg-black text-white">
-                    <h4 class="logo-font my-1">Free delivery on orders over ${{ free_shipping_threshold }}!</h4>
+                    <h4 class="logo-font my-1">Free delivery on orders over {{ free_shipping_threshold }} €</h4>
                 </div>
             </div>
         </header>
 
         {% if messages %}<div class="message-container"></div>{% endif %}
 
-        {% block page_header %}
+        <main class="main-content">
 
-        {% endblock page_header %}
+            {% block page_header %}
 
-        {% block content %}
+            {% endblock page_header %}
 
-        {% endblock content %}
+            {% block content %}
+
+            {% endblock content %}
+        </main>
 
         {% block postloadjs %}
 
