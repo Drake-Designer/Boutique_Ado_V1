@@ -89,7 +89,9 @@
                                         </td>
 
                                         <td class="py-3">
-                                            <form class="update-form" method="POST" action="">
+                                            <form class="update-form"
+                                                  method="POST"
+                                                  action="{% url 'update_bag' item.item_id %}">
                                                 {% csrf_token %}
 
                                                 <div class="input-group qty-input-group">
@@ -128,7 +130,7 @@
                                                     <button type="button"
                                                             class="btn btn-link p-0 text-danger text-decoration-none remove-item"
                                                             data-item_id="{{ item.item_id }}"
-                                                            data-size="{{ item.size }}">
+                                                            data-size="{% if item.product.has_sizes %}{{ item.size }}{% else %}{% endif %}">
                                                         <small>Remove</small>
                                                     </button>
                                                 </div>
@@ -151,13 +153,7 @@
                                         </td>
 
                                         <td class="py-3">
-                                            <p class="my-0">
-                                                {% if item.subtotal %}
-                                                    {{ item.subtotal|floatformat:2 }} €
-                                                {% else %}
-                                                    {{ item.product.price|floatformat:2 }} €
-                                                {% endif %}
-                                            </p>
+                                            <p class="my-0">{{ item.subtotal|floatformat:2 }} €</p>
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -242,7 +238,7 @@
                 const url = `/bag/remove/${itemId}/`;
 
                 const formData = new FormData();
-                if (size) formData.append("size", size);
+                if (size) formData.append("product_size", size);
 
                 const response = await fetch(url, {
                     method: "POST",

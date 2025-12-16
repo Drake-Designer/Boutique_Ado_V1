@@ -15,9 +15,11 @@ def bag_contents(request):
     product_count = 0
 
     bag = request.session.get("bag", {})
+    if not isinstance(bag, dict):
+        bag = {}
 
-    for item_id, item_data in bag.items():
-        product = get_object_or_404(Product, pk=item_id)
+    for item_id_str, item_data in bag.items():
+        product = get_object_or_404(Product, pk=item_id_str)
 
         if isinstance(item_data, int):
             quantity = item_data
@@ -28,7 +30,7 @@ def bag_contents(request):
 
             bag_items.append(
                 {
-                    "item_id": item_id,
+                    "item_id": int(item_id_str),
                     "product": product,
                     "quantity": quantity,
                     "subtotal": subtotal,
@@ -37,6 +39,9 @@ def bag_contents(request):
             continue
 
         items_by_size = item_data.get("items_by_size", {})
+        if not isinstance(items_by_size, dict):
+            items_by_size = {}
+
         for size, quantity in items_by_size.items():
             subtotal = Decimal(quantity) * product.price
 
@@ -45,7 +50,7 @@ def bag_contents(request):
 
             bag_items.append(
                 {
-                    "item_id": item_id,
+                    "item_id": int(item_id_str),
                     "product": product,
                     "quantity": quantity,
                     "size": size,
@@ -76,7 +81,6 @@ def bag_contents(request):
         "delivery": delivery,
         "free_delivery_delta": free_delivery_delta,
         "free_delivery_threshold": free_threshold,
-        "free_shipping_threshold": free_threshold,
         "grand_total": grand_total,
     }
 

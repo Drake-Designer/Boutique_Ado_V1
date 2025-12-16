@@ -1,43 +1,66 @@
+from __future__ import annotations
+
 from django.contrib import messages
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.views.decorators.http import require_POST
 
 from products.models import Product
 
 
 def view_bag(request):
-    """
-    Render the bag contents page.
-    """
+    """Render the shopping bag page."""
     return render(request, "bag/bag.html")
 
 
-def add_to_bag(request, item_id):
-    """
-    Add a quantity of a product to the shopping bag.
-    """
+def _safe_int(value, default: int = 1) -> int:
+    """Convert a value to int safely."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _clamp_quantity(quantity: int, minimum: int = 1, maximum: int = 99) -> int:
+    """Keep quantity within allowed limits."""
+    return max(minimum, min(maximum, quantity))
+
+
+def _get_bag(request) -> dict:
+    """Return the bag session dict."""
+    bag = request.session.get("bag", {})
+    if not isinstance(bag, dict):
+        bag = {}
+    return bag
+
+
+def _save_bag(request, bag: dict) -> None:
+    """Save the bag back to the session."""
+    request.session["bag"] = bag
+
+
+@require_POST
+def add_to_bag(request, item_id: int):
+    """Add a quantity of the specified product to the shopping bag."""
     product = get_object_or_404(Product, pk=item_id)
 
-    try:
-        quantity = int(request.POST.get("quantity", 1))
-    except (TypeError, ValueError):
-        quantity = 1
-
-    quantity = max(1, min(99, quantity))
+    quantity = _safe_int(request.POST.get("quantity"), default=1)
+    quantity = _clamp_quantity(quantity)
 
     redirect_url = request.POST.get("redirect_url") or reverse("products")
     size = request.POST.get("product_size")
 
-    bag = request.session.get("bag", {})
-
+    bag = _get_bag(request)
     item_id_str = str(item_id)
 
     if size:
         bag.setdefault(item_id_str, {"items_by_size": {}})
         bag[item_id_str].setdefault("items_by_size", {})
-        bag[item_id_str]["items_by_size"][size] = bag[item_id_str]["items_by_size"].get(
-            size, 0) + quantity
+
+        bag[item_id_str]["items_by_size"][size] = (
+            bag[item_id_str]["items_by_size"].get(size, 0) + quantity
+        )
 
         messages.success(
             request,
@@ -45,105 +68,74 @@ def add_to_bag(request, item_id):
         )
     else:
         bag[item_id_str] = bag.get(item_id_str, 0) + quantity
-        messages.success(
-            request,
-            f"Added {product.name} to your bag.",
-        )
+        messages.success(request, f"Added {product.name} to your bag.")
 
-    request.session["bag"] = bag
+    _save_bag(request, bag)
     return redirect(redirect_url)
 
 
-def update_bag(request, item_id):
-    """
-    Update the quantity of a product in the shopping bag.
-    """
-    if request.method != "POST":
-        return redirect(reverse("view_bag"))
+@require_POST
+def update_bag(request, item_id: int):
+    """Update the quantity for the specified product in the shopping bag."""
+    get_object_or_404(Product, pk=item_id)
 
-    product = get_object_or_404(Product, pk=item_id)
+    quantity = _safe_int(request.POST.get("quantity"), default=1)
+    quantity = _clamp_quantity(quantity)
 
-    try:
-        quantity = int(request.POST.get("quantity", 1))
-    except (TypeError, ValueError):
-        quantity = 1
-
-    quantity = max(0, min(99, quantity))
     size = request.POST.get("product_size")
-
-    bag = request.session.get("bag", {})
+    bag = _get_bag(request)
     item_id_str = str(item_id)
 
+    if item_id_str not in bag:
+        messages.error(request, "That item is not in your bag.")
+        return redirect(reverse("view_bag"))
+
     if size:
-        if item_id_str not in bag or "items_by_size" not in bag[item_id_str]:
-            messages.error(request, "That item is not in your bag.")
-            return redirect(reverse("view_bag"))
+        item_data = bag.get(item_id_str, {})
+        items_by_size = item_data.get("items_by_size", {})
 
-        if quantity > 0:
-            bag[item_id_str]["items_by_size"][size] = quantity
-            messages.success(
-                request,
-                f"Updated {product.name} (size {size.upper()}) quantity to {quantity}.",
-            )
-        else:
-            bag[item_id_str]["items_by_size"].pop(size, None)
-            messages.success(
-                request,
-                f"Removed {product.name} (size {size.upper()}) from your bag.",
-            )
+        if not isinstance(items_by_size, dict):
+            items_by_size = {}
 
-            if not bag[item_id_str]["items_by_size"]:
-                bag.pop(item_id_str, None)
+        items_by_size[size] = quantity
+
+        bag[item_id_str] = {"items_by_size": items_by_size}
+        messages.success(request, "Bag updated.")
     else:
-        if quantity > 0:
-            bag[item_id_str] = quantity
-            messages.success(
-                request,
-                f"Updated {product.name} quantity to {quantity}.",
-            )
-        else:
-            bag.pop(item_id_str, None)
-            messages.success(
-                request,
-                f"Removed {product.name} from your bag.",
-            )
+        bag[item_id_str] = quantity
+        messages.success(request, "Bag updated.")
 
-    request.session["bag"] = bag
+    _save_bag(request, bag)
     return redirect(reverse("view_bag"))
 
 
-def remove_from_bag(request, item_id):
-    """
-    Remove a product from the shopping bag.
-    """
-    if request.method != "POST":
-        return HttpResponseBadRequest("Invalid request method.")
+@require_POST
+def remove_from_bag(request, item_id: int):
+    """Remove an item (or a size variant) from the shopping bag."""
+    get_object_or_404(Product, pk=item_id)
 
-    product = get_object_or_404(Product, pk=item_id)
-    size = request.POST.get("size")
-
-    bag = request.session.get("bag", {})
+    size = request.POST.get("product_size")
+    bag = _get_bag(request)
     item_id_str = str(item_id)
 
-    try:
-        if size:
-            bag[item_id_str]["items_by_size"].pop(size, None)
+    if item_id_str not in bag:
+        return JsonResponse({"ok": False, "error": "Item not found in bag."}, status=404)
 
-            if not bag[item_id_str]["items_by_size"]:
-                bag.pop(item_id_str, None)
+    if size:
+        item_data = bag.get(item_id_str, {})
+        items_by_size = item_data.get("items_by_size", {})
 
-            messages.success(
-                request,
-                f"Removed {product.name} (size {size.upper()}) from your bag.",
-            )
+        if not isinstance(items_by_size, dict) or size not in items_by_size:
+            return JsonResponse({"ok": False, "error": "Size not found in bag."}, status=404)
+
+        items_by_size.pop(size, None)
+
+        if items_by_size:
+            bag[item_id_str] = {"items_by_size": items_by_size}
         else:
             bag.pop(item_id_str, None)
-            messages.success(
-                request,
-                f"Removed {product.name} from your bag.",
-            )
+    else:
+        bag.pop(item_id_str, None)
 
-        request.session["bag"] = bag
-        return HttpResponse(status=200)
-    except KeyError:
-        return HttpResponseBadRequest("Item not found.")
+    _save_bag(request, bag)
+    return JsonResponse({"ok": True}, status=200)
