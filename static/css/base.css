@@ -1,10 +1,11 @@
-/* Global layout */
+/* ------------------------------------------------------------
+   GLOBAL LAYOUT & BASE ELEMENTS
+   ------------------------------------------------------------ */
 html,
 body {
   height: 100%;
 }
 
-/* Default site background and typography */
 body {
   min-height: 100vh;
   background: #f8f9fa;
@@ -18,18 +19,15 @@ body {
     sans-serif;
 }
 
-/*
-  Home page background image
-  NOTE: Prefer static assets for theme/background images.
-  Put the image in: static/images/homepage/homepage_background_cropped.jpg
-*/
+/* ------------------------------------------------------------
+   HOME PAGE BACKGROUND
+   ------------------------------------------------------------ */
 body.home-page {
   background: #f8f9fa url("/static/images/homepage/homepage_background_cropped.jpg") no-repeat
     center center fixed;
   background-size: cover;
 }
 
-/* Improve background behavior on small screens */
 @media (max-width: 767.98px) {
   body.home-page {
     background-attachment: scroll;
@@ -37,7 +35,9 @@ body.home-page {
   }
 }
 
-/* Icon helper */
+/* ------------------------------------------------------------
+   HELPERS & UTILITIES
+   ------------------------------------------------------------ */
 .icon {
   display: inline-flex;
   align-items: center;
@@ -46,18 +46,53 @@ body.home-page {
   width: 1.5rem;
 }
 
-/* Logo styling */
+.text-black {
+  color: #000 !important;
+}
+
+.border-black {
+  border: 1px solid #000 !important;
+}
+
+.bg-black {
+  background: #000 !important;
+}
+
+.btt-link,
+.update-link,
+.remove-item {
+  cursor: pointer;
+}
+
+/* ------------------------------------------------------------
+   BRANDING & HEADER
+   ------------------------------------------------------------ */
 .logo-font {
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
-/* Keep logo link as tight as the content */
 .main-logo-link {
   width: fit-content;
 }
 
-/* Primary call to action buttons */
+.header-container {
+  padding-top: 7.5rem;
+}
+
+@media (min-width: 992px) {
+  .header-container {
+    padding-top: 10.5rem;
+  }
+}
+
+#delivery-banner {
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+}
+
+/* ------------------------------------------------------------
+   BUTTONS
+   ------------------------------------------------------------ */
 .shop-now-button {
   background: #000;
   color: #fff;
@@ -67,14 +102,12 @@ body.home-page {
   font-weight: 600;
 }
 
-/* Reusable black button variant */
 .btn-black {
   background: #000;
   color: #fff;
   border-radius: 0;
 }
 
-/* Outline black button variant */
 .btn-outline-black {
   background: #fff;
   color: #000 !important;
@@ -82,7 +115,6 @@ body.home-page {
   border-radius: 0;
 }
 
-/* Hover and focus states */
 .shop-now-button:hover,
 .shop-now-button:active,
 .shop-now-button:focus,
@@ -100,7 +132,6 @@ body.home-page {
   color: #fff !important;
 }
 
-/* Accessibility: stronger focus styles for keyboard users */
 .shop-now-button:focus-visible,
 .btn-black:focus-visible,
 .btn-outline-black:focus-visible {
@@ -108,7 +139,6 @@ body.home-page {
   outline-offset: 2px;
 }
 
-/* Smooth transition on buttons */
 .shop-now-button,
 .btn-black,
 .btn-outline-black {
@@ -118,23 +148,9 @@ body.home-page {
     border-color 0.2s ease;
 }
 
-/* Text and border utilities */
-.text-black {
-  color: #000 !important;
-}
-
-.border-black {
-  border: 1px solid #000 !important;
-}
-
-.bg-black {
-  background: #000 !important;
-}
-
-/*
-  Page overlay used on product pages
-  Keep behind content without affecting layout.
-*/
+/* ------------------------------------------------------------
+   OVERLAY
+   ------------------------------------------------------------ */
 .overlay {
   position: fixed;
   inset: 0;
@@ -142,102 +158,119 @@ body.home-page {
   z-index: -1;
 }
 
-/*
-  Header spacing
-  Ensure content never sticks to the fixed header + delivery banner.
-*/
-.header-container {
-  padding-top: 7.5rem;
-}
-
-/* Desktop fixed header spacing */
-@media (min-width: 992px) {
-  .header-container {
-    padding-top: 10.5rem;
-  }
-}
-
-/*
-  Delivery banner spacing
-  Add a little breathing room below the banner.
-*/
-#delivery-banner {
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
-}
-
-#delivery-banner + .header-container {
-  padding-top: 1.25rem;
-}
-
-/* Category badge hover */
-.category-badge {
-  border: 1px solid #212529;
-  background: #fff;
-  color: #000;
-  font-weight: 600;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0;
-}
-
-.category-badge:hover {
-  background: #212529;
-  color: #fff;
-}
-
-/* Back to top button */
-.btt-button {
-  height: 42px;
-  width: 42px;
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-  display: grid;
-  place-items: center;
-}
-
-/* Clickable helpers */
-.btt-link,
-.update-link,
-.remove-item {
-  cursor: pointer;
-}
-
-/*
-  Product cards
-  Small polish for a cleaner grid.
-*/
-.product-card .card-img-top {
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-}
-
-/*
-  Product detail page image
-  Keep consistent sizing and crop nicely.
-*/
-.product-detail-image {
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-}
-
-/*
-  Bag page product image size
-*/
+/* ------------------------------------------------------------
+   BAG PAGE
+   ------------------------------------------------------------ */
 .bag-product-image {
   max-width: 120px;
   height: auto;
 }
 
-/* Sort dropdown wrapper */
-.sort-select-wrapper {
-  min-width: 180px;
-}
-
-/* Quantity input sizing (no inline styles) */
+/* ------------------------------------------------------------
+   QUANTITY INPUTS
+   ------------------------------------------------------------ */
 .qty-input-group {
-  max-width: 220px;
+  display: inline-flex;
+  width: auto;
+  max-width: 160px;
 }
 
-.qty_input {
+.qty-input-group .btn {
+  width: 38px;
+  flex: 0 0 38px;
+}
+
+.qty-input-group .qty_input {
+  width: 56px;
+  flex: 0 0 56px;
   text-align: center;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+/* ------------------------------------------------------------
+   TOASTS / MESSAGES
+   ------------------------------------------------------------ */
+:root {
+  --toast-top: 72px;
+  --toast-left: auto;
+}
+
+.message-container {
+  position: absolute;
+  top: var(--toast-top);
+  left: var(--toast-left);
+  z-index: 1080;
+  width: min(420px, calc(100vw - 20px));
+}
+
+@media (max-width: 991.98px) {
+  :root {
+    --toast-top: 116px;
+  }
+
+  .message-container {
+    width: min(420px, calc(100vw - 24px));
+  }
+}
+
+.custom-toast {
+  overflow: visible;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.toast-capper {
+  height: 2px;
+}
+
+/* ------------------------------------------------------------
+   TOAST ARROW
+   ------------------------------------------------------------ */
+.arrow-up {
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 12px solid #198754;
+  position: absolute;
+  top: -12px;
+  right: 36px;
+}
+
+.arrow-success {
+  border-bottom-color: #198754 !important;
+}
+
+.arrow-danger {
+  border-bottom-color: #dc3545 !important;
+}
+
+.arrow-warning {
+  border-bottom-color: #ffc107 !important;
+}
+
+.arrow-info {
+  border-bottom-color: #0dcaf0 !important;
+}
+
+/* ------------------------------------------------------------
+   BAG NOTIFICATION (TOAST SUCCESS)
+   ------------------------------------------------------------ */
+.bag-notification-wrapper {
+  max-height: 160px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.bag-notification-item {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.bag-notification-item img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
 }

@@ -45,9 +45,8 @@ def add_to_bag(request, item_id: int):
     """Add a quantity of the specified product to the shopping bag."""
     product = get_object_or_404(Product, pk=item_id)
 
-    quantity = _safe_int(request.POST.get("quantity"), default=1)
-    quantity = _clamp_quantity(quantity)
-
+    quantity = _clamp_quantity(
+        _safe_int(request.POST.get("quantity"), default=1))
     redirect_url = request.POST.get("redirect_url") or reverse("products")
     size = request.POST.get("product_size")
 
@@ -64,11 +63,16 @@ def add_to_bag(request, item_id: int):
 
         messages.success(
             request,
-            f"Added {product.name} (size {size.upper()}) to your bag.",
+            f"Added size {size.upper()} {product.name} to your bag",
+            extra_tags="bag",
         )
     else:
         bag[item_id_str] = bag.get(item_id_str, 0) + quantity
-        messages.success(request, f"Added {product.name} to your bag.")
+        messages.success(
+            request,
+            f"Added {product.name} to your bag",
+            extra_tags="bag",
+        )
 
     _save_bag(request, bag)
     return redirect(redirect_url)
@@ -77,12 +81,12 @@ def add_to_bag(request, item_id: int):
 @require_POST
 def update_bag(request, item_id: int):
     """Update the quantity for the specified product in the shopping bag."""
-    get_object_or_404(Product, pk=item_id)
+    product = get_object_or_404(Product, pk=item_id)
 
-    quantity = _safe_int(request.POST.get("quantity"), default=1)
-    quantity = _clamp_quantity(quantity)
-
+    quantity = _clamp_quantity(
+        _safe_int(request.POST.get("quantity"), default=1))
     size = request.POST.get("product_size")
+
     bag = _get_bag(request)
     item_id_str = str(item_id)
 
@@ -98,21 +102,24 @@ def update_bag(request, item_id: int):
             items_by_size = {}
 
         items_by_size[size] = quantity
-
         bag[item_id_str] = {"items_by_size": items_by_size}
-        messages.success(request, "Bag updated.")
     else:
         bag[item_id_str] = quantity
-        messages.success(request, "Bag updated.")
 
     _save_bag(request, bag)
+
+    messages.success(
+        request,
+        f"Updated {product.name} quantity in your bag",
+        extra_tags="bag",
+    )
     return redirect(reverse("view_bag"))
 
 
 @require_POST
 def remove_from_bag(request, item_id: int):
     """Remove an item (or a size variant) from the shopping bag."""
-    get_object_or_404(Product, pk=item_id)
+    product = get_object_or_404(Product, pk=item_id)
 
     size = request.POST.get("product_size")
     bag = _get_bag(request)
@@ -138,4 +145,10 @@ def remove_from_bag(request, item_id: int):
         bag.pop(item_id_str, None)
 
     _save_bag(request, bag)
+
+    messages.success(
+        request,
+        f"Removed {product.name} from your bag",
+        extra_tags="bag",
+    )
     return JsonResponse({"ok": True}, status=200)
