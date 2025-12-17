@@ -37,7 +37,7 @@
                                      decoding="async" />
                             </a>
                         {% else %}
-                            <img src="{% static 'images/noimage.png' }}"
+                            <img src="{% static 'images/noimage.png' %}"
                                  class="card-img-top img-fluid product-detail-image"
                                  alt="{{ product.name }}"
                                  width="600"
@@ -101,12 +101,12 @@
                         <div class="mb-3 qty-block">
                             <label for="id_qty_{{ product.id }}" class="form-label fw-semibold mb-1">Quantity</label>
 
-                            <div class="input-group qty-input-group">
+                            <div class="input-group input-group-sm qty-input-group">
                                 <button type="button"
-                                        class="btn btn-black decrement-qty"
+                                        class="btn btn-black btn-sm decrement-qty"
                                         data-item_id="{{ product.id }}"
                                         aria-label="Decrease quantity">
-                                    <i class="fas fa-minus"></i>
+                                    <i class="fas fa-minus" aria-hidden="true"></i>
                                 </button>
 
                                 <input type="number"
@@ -119,10 +119,10 @@
                                        id="id_qty_{{ product.id }}" />
 
                                 <button type="button"
-                                        class="btn btn-black increment-qty"
+                                        class="btn btn-black btn-sm increment-qty"
                                         data-item_id="{{ product.id }}"
                                         aria-label="Increase quantity">
-                                    <i class="fas fa-plus"></i>
+                                    <i class="fas fa-plus" aria-hidden="true"></i>
                                 </button>
                             </div>
                         </div>
@@ -147,5 +147,5 @@
 {% block postloadjs %}
 
     {{ block.super }}
-    {% include 'products/includes/quantity_input_script.html' %}
+    {% include "products/includes/quantity_input_script.html" %}
 {% endblock postloadjs %}

@@ -69,20 +69,22 @@
                 </div>
 
                 <div class="col-12 col-lg-4 my-auto py-1 py-lg-0">
-                    <form method="get" action="{% url 'products' %}" class="d-flex">
+                    <form method="get" action="{% url 'products' %}">
                         <div class="input-group w-100">
                             <label for="site-search" class="visually-hidden">Search</label>
                             <input id="site-search"
+                                   class="form-control border border-black rounded-0"
                                    type="search"
                                    name="q"
-                                   class="form-control border border-black rounded-0"
                                    placeholder="Search our site"
                                    aria-label="Search"
                                    autocomplete="off" />
                             <button class="btn btn-black border border-black rounded-0"
                                     type="submit"
                                     aria-label="Search">
-                                <i class="fas fa-search" aria-hidden="true"></i>
+                                <span class="icon">
+                                    <i class="fas fa-search" aria-hidden="true"></i>
+                                </span>
                             </button>
                         </div>
                     </form>
@@ -106,34 +108,21 @@
                                 </div>
                             </a>
 
-                            <ul class="dropdown-menu border-0" aria-labelledby="user-options">
+                            <div class="dropdown-menu border-0" aria-labelledby="user-options">
                                 {% if request.user.is_authenticated %}
-                                    {% if request.user.is_superuser %}
-                                        <li>
-                                            <a href="#" class="dropdown-item">Product Management</a>
-                                        </li>
-                                    {% endif %}
-                                    <li>
-                                        <a href="#" class="dropdown-item">My Profile</a>
-                                    </li>
-                                    <li>
-                                        <a href="{% url 'account_logout' %}" class="dropdown-item">Logout</a>
-                                    </li>
+                                    {% if request.user.is_superuser %}<a href="#" class="dropdown-item">Product Management</a>{% endif %}
+                                    <a href="#" class="dropdown-item">My Profile</a>
+                                    <a href="{% url 'account_logout' %}" class="dropdown-item">Logout</a>
                                 {% else %}
-                                    <li>
-                                        <a href="{% url 'account_signup' %}" class="dropdown-item">Register</a>
-                                    </li>
-                                    <li>
-                                        <a href="{% url 'account_login' %}" class="dropdown-item">Login</a>
-                                    </li>
+                                    <a href="{% url 'account_signup' %}" class="dropdown-item">Register</a>
+                                    <a href="{% url 'account_login' %}" class="dropdown-item">Login</a>
                                 {% endif %}
-                            </ul>
+                            </div>
                         </li>
 
                         {# Bag total (DESKTOP) #}
                         <li class="list-inline-item">
-                            <a id="bag-link-desktop"
-                               class="nav-link {% if grand_total %}text-info fw-bold{% else %}text-black{% endif %}"
+                            <a class="nav-link {% if grand_total %}text-info fw-bold{% else %}text-black{% endif %}"
                                href="{% url 'view_bag' %}">
                                 <div class="text-center">
                                     <div>
@@ -181,19 +170,21 @@
             </div>
         </header>
 
-        {# Toast messages #}
+        {# Toast messages (same logic as course, but Bootstrap 5) #}
         {% if messages %}
             <div class="message-container" aria-live="polite" aria-atomic="true">
                 {% for message in messages %}
-                    {% if "error" in message.tags %}
-                        {% include "includes/toasts/error.html" %}
-                    {% elif "warning" in message.tags %}
-                        {% include "includes/toasts/warning.html" %}
-                    {% elif "success" in message.tags %}
-                        {% include "includes/toasts/success.html" %}
-                    {% else %}
-                        {% include "includes/toasts/info.html" %}
-                    {% endif %}
+                    {% with message.level as level %}
+                        {% if level == 40 %}
+                            {% include "includes/toasts/error.html" %}
+                        {% elif level == 30 %}
+                            {% include "includes/toasts/warning.html" %}
+                        {% elif level == 25 %}
+                            {% include "includes/toasts/success.html" %}
+                        {% else %}
+                            {% include "includes/toasts/info.html" %}
+                        {% endif %}
+                    {% endwith %}
                 {% endfor %}
             </div>
         {% endif %}
@@ -215,40 +206,8 @@
 
             <script>
                 document.addEventListener("DOMContentLoaded", function() {
-                    const container = document.querySelector(".message-container");
-                    const toasts = document.querySelectorAll(".toast");
-
-                    function isDesktop() {
-                        return window.matchMedia("(min-width: 992px)").matches;
-                    }
-
-                    function setToastAnchor() {
-                        if (!container) return;
-
-                        const anchor = isDesktop() ?
-                            document.getElementById("bag-link-desktop") :
-                            document.getElementById("bag-link-mobile");
-
-                        if (!anchor) return;
-
-                        const rect = anchor.getBoundingClientRect();
-                        const scrollTop = window.scrollY || document.documentElement.scrollTop;
-                        const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
-
-                        const top = rect.bottom + scrollTop + 10;
-                        const left = rect.right + scrollLeft - container.offsetWidth;
-
-                        document.documentElement.style.setProperty("--toast-top", `${top}px`);
-                        document.documentElement.style.setProperty("--toast-left", `${Math.max(10, left)}px`);
-                    }
-
-                    setToastAnchor();
-                    window.addEventListener("resize", setToastAnchor);
-                    window.addEventListener("scroll", setToastAnchor, {
-                        passive: true
-                    });
-
-                    toasts.forEach((el) => {
+                    const toastEls = document.querySelectorAll(".toast");
+                    toastEls.forEach((el) => {
                         const toast = bootstrap.Toast.getOrCreateInstance(el);
                         toast.show();
                     });
