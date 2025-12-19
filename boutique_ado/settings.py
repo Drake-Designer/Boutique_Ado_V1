@@ -4,7 +4,17 @@ Django settings for boutique_ado project.
 
 from pathlib import Path
 
+
+# ------------------------------------------------------------
+# PATHS
+# ------------------------------------------------------------
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+# ------------------------------------------------------------
+# SECURITY
+# ------------------------------------------------------------
 
 SECRET_KEY = "django-insecure-bf_nx7m0sd(kbofoqv1g*ba))$ux)2(ju#mr-kr5#21@5iql_d"
 
@@ -15,7 +25,12 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
 ]
 
-INSTALLED_APPS = [
+
+# ------------------------------------------------------------
+# APPLICATIONS
+# ------------------------------------------------------------
+
+DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -23,13 +38,25 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
+
+    # Third party apps
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+
+    # Local apps
     "home",
     "products",
     "bag",
+    "checkout",
 ]
+
+INSTALLED_APPS = DJANGO_APPS
+
+
+# ------------------------------------------------------------
+# MIDDLEWARE
+# ------------------------------------------------------------
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -42,7 +69,18 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+
+# ------------------------------------------------------------
+# URLS / WSGI
+# ------------------------------------------------------------
+
 ROOT_URLCONF = "boutique_ado.urls"
+WSGI_APPLICATION = "boutique_ado.wsgi.application"
+
+
+# ------------------------------------------------------------
+# TEMPLATES
+# ------------------------------------------------------------
 
 TEMPLATES = [
     {
@@ -64,7 +102,10 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "boutique_ado.wsgi.application"
+
+# ------------------------------------------------------------
+# DATABASE
+# ------------------------------------------------------------
 
 DATABASES = {
     "default": {
@@ -73,6 +114,11 @@ DATABASES = {
     }
 }
 
+
+# ------------------------------------------------------------
+# PASSWORD VALIDATION
+# ------------------------------------------------------------
+
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
@@ -80,37 +126,88 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+
+# ------------------------------------------------------------
+# INTERNATIONALIZATION
+# ------------------------------------------------------------
+
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
+
+
+# ------------------------------------------------------------
+# STATIC FILES (CSS, JS, IMAGES)
+# ------------------------------------------------------------
 
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
+
+# ------------------------------------------------------------
+# MEDIA FILES (USER UPLOADS)
+# ------------------------------------------------------------
+
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+
+# ------------------------------------------------------------
+# DEFAULTS
+# ------------------------------------------------------------
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# ------------------------------------------------------------
+# SITES / AUTHENTICATION
+# ------------------------------------------------------------
+
 SITE_ID = 1
+
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
+
+# ------------------------------------------------------------
+# EMAIL (DEV)
+# ------------------------------------------------------------
+
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
+
+# ------------------------------------------------------------
+# DJANGO-ALLAUTH SETTINGS
+# ------------------------------------------------------------
+
 ACCOUNT_LOGIN_METHODS = ("username", "email")
+
+
 ACCOUNT_SIGNUP_FIELDS = ["email*", "username*", "password1*", "password2*"]
+
+
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+
+
 ACCOUNT_USERNAME_MIN_LENGTH = 4
+
+
+# ------------------------------------------------------------
+# LOGIN / LOGOUT REDIRECTS
+# ------------------------------------------------------------
 
 LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/"
+
+
+# ------------------------------------------------------------
+# SHOP SETTINGS
+# ------------------------------------------------------------
 
 FREE_DELIVERY_THRESHOLD = 50
 STANDARD_DELIVERY_PERCENTAGE = 10
